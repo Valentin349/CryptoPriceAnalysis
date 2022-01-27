@@ -2,9 +2,10 @@ const listURL = new URL("https://api.coingecko.com/api/v3/coins/list");
 const pricesURL = new URL("https://api.coingecko.com/api/v3/simple/price");
 var coins = {};
 
-
-
 async function getData(url, parameters={}) {
+    for (var param in parameters){
+        url.searchParams.set(param, parameters[param]);
+    }
     try{
         const response = await fetch(url);
         return await response.json();
@@ -13,13 +14,13 @@ async function getData(url, parameters={}) {
     }
 }
 
-function getCoins(){
+async function getCoins(){
     var counter = 0;
     var idStrings = [''];
-    var ids = []
+    var ids = [];
     var pages = 0;
 
-    getData(listURL).then(data =>{
+    await getData(listURL).then(data =>{
         for (var coin in data){
             if (counter > 450){
                 counter = 0;
@@ -33,20 +34,28 @@ function getCoins(){
         ids.forEach(function(v){
             coins[v] = [];
         });
-
-        getPrices(idStrings);
     })
-    console.log(pages);
+    return idStrings;
 }
 
-function getPrices(idStrings){
-    const time = Date.now();
-    console.log(idStrings[0]);
-    idStrings.forEach(page => {
-        getData(pricesURL, {'vs_currencies': 'usd', 'include_last_updated_at': 'true', 'ids':page}).then(data => {
-
-        })
+async function getPrices(idStrings){
+    var promises = [];
+    idStrings.then(idString => {
+        for (var page in idString){
+            promises.push(getData(pricesURL, {'vs_currencies': 'usd', 'ids':idString[page]}));
+        }
+    }).then(() => {
+        Promise.all(promises).then(pages => {
+            for (var page in pages){
+                var data = pages[page];
+                for (var coin in data){
+                    coins[coin].push(data[coin].usd);
+                }
+            }
+        });
     })
+    return coins;
 }
 
-getCoins();
+var idStrings = getCoins();
+coins = getPrices(idStrings);
