@@ -1,6 +1,6 @@
 const listURL = new URL("https://api.coingecko.com/api/v3/coins/list");
 const pricesURL = new URL("https://api.coingecko.com/api/v3/simple/price");
-var coins = {};
+
 
 async function getData(url, parameters={}) {
     for (var param in parameters){
@@ -15,10 +15,10 @@ async function getData(url, parameters={}) {
 }
 
 async function getCoins(){
-    var counter = 0;
     var idStrings = [''];
-    var ids = [];
+    var coins = {};
     var pages = 0;
+    var counter = 0;
 
     await getData(listURL).then(data =>{
         for (var coin in data){
@@ -28,34 +28,42 @@ async function getCoins(){
                 idStrings.push('');
             }
             idStrings[pages] = String(idStrings[pages]).concat(data[coin].id,',');
-            ids.push(data[coin].id);
+            coins[data[coin].id] = [];
             counter++;
         }
-        ids.forEach(function(v){
-            coins[v] = [];
-        });
     })
-    return idStrings;
+    return {idStrings, coins};
 }
 
-async function getPrices(idStrings){
+async function getPrices(idStrings, coins){
     var promises = [];
-    idStrings.then(idString => {
-        for (var page in idString){
-            promises.push(getData(pricesURL, {'vs_currencies': 'usd', 'ids':idString[page]}));
+    for (var page in idStrings){
+        promises.push(getData(pricesURL, {'vs_currencies': 'usd', 'ids':idStrings[page]}));
+    }
+    Promise.all(promises).then(pages => {
+        for (var page in pages){
+            var data = pages[page];
+            for (var coin in data){
+                coins[coin].push(data[coin].usd);
+            }
         }
     }).then(() => {
-        Promise.all(promises).then(pages => {
-            for (var page in pages){
-                var data = pages[page];
-                for (var coin in data){
-                    coins[coin].push(data[coin].usd);
-                }
+        var i = 1;
+        var dataHtml = '';
+        for (var coin in coins){
+            if (i<500){
+                dataHtml += `<tr><td>${i}</td><td>${coin}</td><td>${coins[coin].at(-1)}</td></tr>`;
             }
-        });
-    })
-    return coins;
+            i++;
+        }
+        document.getElementById('cryptocurrencies').innerHTML = dataHtml;
+    }
+    );
 }
 
-var idStrings = getCoins();
-coins = getPrices(idStrings);
+
+getCoins().then(data =>{
+    getPrices(data.idStrings, data.coins);
+});
+
+

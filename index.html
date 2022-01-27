@@ -2,13 +2,24 @@
 
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <title>Coin Prices</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+	<title>Coin Prices</title>
 </head>
 
 <body>
-  <script src="scripts.js"></script>
+	<table class="table is-narrow is-hoverable" id="leaderboard">
+		<thead>
+			<tr>
+				<th>Rank</th>
+				<th>Name</th>
+				<th>Current Price</th>
+			</tr>
+		</thead>
+		<tbody id="cryptocurrencies">
+		</tbody>
+	</table>
+	<script src="scripts.js"></script>
 </body>
 </html>
