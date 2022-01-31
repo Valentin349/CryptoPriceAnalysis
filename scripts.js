@@ -60,20 +60,33 @@ function updateTable(){
                 coinList.push({name : coin, prices : coins[coin]});
             }
         }
-        coinList.sort(compare);
+        coinList.sort(compare5);
         for (var i in coinList){
             var coin = coinList[i];
             dataHtml += `<tr>
-            <td>${i+1}</td>
+            <td>${i}</td>
             <td>${coin.name}</td>
             <td>${coin.prices.at(-1)}</td>
             <td>${(coin.prices.at(-1) - coin.prices.at(-2))/coin.prices.at(-1)*100}</td>
             </tr>`;
         }
-        document.getElementById('cryptocurrencies').innerHTML = dataHtml;
+        document.getElementById('5minTable').innerHTML = dataHtml;
+        if (coinList[0].prices.length >= 5){
+            coinList.sort(compare30);
+            dataHtml = '';
+            for (var i in coinList){
+                var coin = coinList[i];
+                dataHtml += `<tr>
+                <td>${i}</td>
+                <td>${coin.name}</td>
+                <td>${(coin.prices.at(-1) - coin.prices.at(-5))/coin.prices.at(-5)*100}</td>
+                </tr>`;
+            }
+            document.getElementById('30minTable').innerHTML = dataHtml;
+        }
 }
 
-function compare(a, b){
+function compare5(a, b){
     var diffA = (a.prices.at(-1) - a.prices.at(-2))/a.prices.at(-1)
     var diffB = (b.prices.at(-1) - b.prices.at(-2))/b.prices.at(-1)
     if (isFinite(diffB-diffA)){
@@ -83,8 +96,19 @@ function compare(a, b){
     }
 }
 
+function compare30(a, b){
+    var diffA = (a.prices.at(-1) - a.prices.at(-5))/a.prices.at(-1)
+    var diffB = (b.prices.at(-1) - b.prices.at(-5))/b.prices.at(-1)
+    if (isFinite(diffB-diffA)){
+        return diffB-diffA;
+    } else {
+        return isFinite(diffA) ? -1 : 1;
+    }
+}
+
 function main() {
     getCoins().then(idStrings =>{
+        timestamp = Date.now();
         getPrices(idStrings, coins);
         setInterval(function() {
             getPrices(idStrings, coins);
