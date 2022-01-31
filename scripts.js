@@ -1,6 +1,6 @@
 const listURL = new URL("https://api.coingecko.com/api/v3/coins/list");
 const pricesURL = new URL("https://api.coingecko.com/api/v3/simple/price");
-
+var coins = {};
 
 async function getData(url, parameters={}) {
     for (var param in parameters){
@@ -16,7 +16,6 @@ async function getData(url, parameters={}) {
 
 async function getCoins(){
     var idStrings = [''];
-    var coins = {};
     var pages = 0;
     var counter = 0;
 
@@ -32,10 +31,10 @@ async function getCoins(){
             counter++;
         }
     })
-    return {idStrings, coins};
+    return idStrings;
 }
 
-async function getPrices(idStrings, coins){
+function getPrices(idStrings, coins){
     var promises = [];
     for (var page in idStrings){
         promises.push(getData(pricesURL, {'vs_currencies': 'usd', 'ids':idStrings[page]}));
@@ -48,22 +47,47 @@ async function getPrices(idStrings, coins){
             }
         }
     }).then(() => {
-        var i = 1;
+        var coinList = [];
         var dataHtml = '';
+        console.log(coins);
         for (var coin in coins){
-            if (i<500){
-                dataHtml += `<tr><td>${i}</td><td>${coin}</td><td>${coins[coin].at(-1)}</td></tr>`;
+            if (coins[coin].at(-1) != null){
+                coinList.push({name : coin, prices : coins[coin]});
             }
-            i++;
+        }
+        coinList.sort(compare);
+        for (var i in coinList){
+            var coin = coinList[i];
+            dataHtml += `<tr>
+            <td>${i+1}</td>
+            <td>${coin.name}</td>
+            <td>${coin.prices.at(-1)}</td>
+            <td>${(coin.prices.at(-1) - coin.prices.at(-2))/coin.prices.at(-1)*100}</td>
+            </tr>`;
         }
         document.getElementById('cryptocurrencies').innerHTML = dataHtml;
-    }
-    );
+    });
 }
 
+function compare(a, b){
+    var diffA = (a.prices.at(-1) - a.prices.at(-2))/a.prices.at(-1)
+    var diffB = (b.prices.at(-1) - b.prices.at(-2))/b.prices.at(-1)
+    if (isFinite(diffB-diffA)){
+        return diffB-diffA;
+    } else {
+        return isFinite(diffA) ? -1 : 1;
+    }
+}
 
-getCoins().then(data =>{
-    getPrices(data.idStrings, data.coins);
-});
+function updateTable() {
+    getCoins().then(idStrings =>{
+        getPrices(idStrings, coins);
+        setInterval(function() {
+            getPrices(idStrings, coins);
+        }, 60000);
+    });
+}
+
+updateTable();
 
 
