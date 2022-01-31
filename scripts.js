@@ -47,7 +47,12 @@ function getPrices(idStrings, coins){
             }
         }
     }).then(() => {
-        var coinList = [];
+        updateTable();
+    });
+}
+
+function updateTable(){
+    var coinList = [];
         var dataHtml = '';
         console.log(coins);
         for (var coin in coins){
@@ -66,7 +71,6 @@ function getPrices(idStrings, coins){
             </tr>`;
         }
         document.getElementById('cryptocurrencies').innerHTML = dataHtml;
-    });
 }
 
 function compare(a, b){
@@ -79,7 +83,7 @@ function compare(a, b){
     }
 }
 
-function updateTable() {
+function main() {
     getCoins().then(idStrings =>{
         getPrices(idStrings, coins);
         setInterval(function() {
@@ -88,6 +92,6 @@ function updateTable() {
     });
 }
 
-updateTable();
+main();
 
 
