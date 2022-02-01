@@ -53,37 +53,38 @@ function getPrices(idStrings, coins){
 
 function updateTable(){
     var coinList = [];
-        var dataHtml = '';
-        console.log(coins);
-        for (var coin in coins){
-            if (coins[coin].at(-1) != null){
-                coinList.push({name : coin, prices : coins[coin]});
-            }
+    var dataHtml = '';
+    console.log(coins);
+    for (var coin in coins){
+        if (coins[coin].at(-1) != null){
+            coinList.push({name : coin, prices : coins[coin]});
         }
-        coinList.sort(compare5);
+    }
+    coinList.sort(compare5);
+    for (var i in coinList){
+        var coin = coinList[i];
+        dataHtml += `<tr>
+        <td>${i}</td>
+        <td>${coin.name}</td>
+        <td>${coin.prices.at(-1)}</td>
+        <td>${(coin.prices.at(-1) - coin.prices.at(-2))/coin.prices.at(-1)*100}</td>
+        </tr>`;
+    }
+    document.getElementById('5minTable').innerHTML = dataHtml;
+
+    if (coinList[0].prices.length >= 5){
+        coinList.sort(compare30);
+        dataHtml = '';
         for (var i in coinList){
             var coin = coinList[i];
             dataHtml += `<tr>
             <td>${i}</td>
             <td>${coin.name}</td>
-            <td>${coin.prices.at(-1)}</td>
-            <td>${(coin.prices.at(-1) - coin.prices.at(-2))/coin.prices.at(-1)*100}</td>
+            <td>${(coin.prices.at(-1) - coin.prices.at(-5))/coin.prices.at(-5)*100}</td>
             </tr>`;
         }
-        document.getElementById('5minTable').innerHTML = dataHtml;
-        if (coinList[0].prices.length >= 5){
-            coinList.sort(compare30);
-            dataHtml = '';
-            for (var i in coinList){
-                var coin = coinList[i];
-                dataHtml += `<tr>
-                <td>${i}</td>
-                <td>${coin.name}</td>
-                <td>${(coin.prices.at(-1) - coin.prices.at(-5))/coin.prices.at(-5)*100}</td>
-                </tr>`;
-            }
-            document.getElementById('30minTable').innerHTML = dataHtml;
-        }
+        document.getElementById('30minTable').innerHTML = dataHtml;
+    }
 }
 
 function compare5(a, b){
@@ -112,10 +113,8 @@ function main() {
         getPrices(idStrings, coins);
         setInterval(function() {
             getPrices(idStrings, coins);
-        }, 60000);
+        }, 300000);
     });
 }
 
 main();
-
-
