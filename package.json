@@ -1,0 +1,23 @@
+{
+  "name": "crypto-api",
+  "version": "1.0.0",
+  "description": "Crypto tables using CoinGecko API",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Valentin349/CryptoPriceAnalysis.git"
+  },
+  "author": "Valentin Bolocan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Valentin349/CryptoPriceAnalysis/issues"
+  },
+  "homepage": "https://github.com/Valentin349/CryptoPriceAnalysis#readme",
+  "dependencies": {
+    "express": "^4.17.2",
+    "node-fetch": "^2.6.7"
+  }
+}
