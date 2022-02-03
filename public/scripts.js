@@ -14,7 +14,6 @@ async function updateTable(){
     var coinList = [];
     var dataHtml = '';
     var coins = await getData('/api');
-    console.log(coins);
     for (var coin in coins){
         if (coins[coin].at(-1) != null){
             coinList.push({name : coin, prices : coins[coin]});
@@ -67,4 +66,4 @@ function compare30(a, b){
     }
 }
 
-setInterval(updateTable, 60000);
+setInterval(updateTable, 30000);
