@@ -1,7 +1,3 @@
-const listURL = new URL("https://api.coingecko.com/api/v3/coins/list");
-const pricesURL = new URL("https://api.coingecko.com/api/v3/simple/price");
-var coins = {};
-
 async function getData(url, parameters={}) {
     for (var param in parameters){
         url.searchParams.set(param, parameters[param]);
@@ -14,46 +10,10 @@ async function getData(url, parameters={}) {
     }
 }
 
-async function getCoins(){
-    var idStrings = [''];
-    var pages = 0;
-    var counter = 0;
-
-    await getData(listURL).then(data =>{
-        for (var coin in data){
-            if (counter > 450){
-                counter = 0;
-                pages++;
-                idStrings.push('');
-            }
-            idStrings[pages] = String(idStrings[pages]).concat(data[coin].id,',');
-            coins[data[coin].id] = [];
-            counter++;
-        }
-    })
-    return idStrings;
-}
-
-function getPrices(idStrings, coins){
-    var promises = [];
-    for (var page in idStrings){
-        promises.push(getData(pricesURL, {'vs_currencies': 'usd', 'ids':idStrings[page]}));
-    }
-    Promise.all(promises).then(pages => {
-        for (var page in pages){
-            var data = pages[page];
-            for (var coin in data){
-                coins[coin].push(data[coin].usd);
-            }
-        }
-    }).then(() => {
-        updateTable();
-    });
-}
-
-function updateTable(){
+async function updateTable(){
     var coinList = [];
     var dataHtml = '';
+    var coins = await getData('/api');
     console.log(coins);
     for (var coin in coins){
         if (coins[coin].at(-1) != null){
@@ -107,14 +67,4 @@ function compare30(a, b){
     }
 }
 
-function main() {
-    getCoins().then(idStrings =>{
-        timestamp = Date.now();
-        getPrices(idStrings, coins);
-        setInterval(function() {
-            getPrices(idStrings, coins);
-        }, 300000);
-    });
-}
-
-main();
+setInterval(updateTable, 60000);
