@@ -66,4 +66,5 @@ function compare30(a, b){
     }
 }
 
+updateTable();
 setInterval(updateTable, 30000);
