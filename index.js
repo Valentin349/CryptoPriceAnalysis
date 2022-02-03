@@ -77,6 +77,4 @@ app.get('/api', (req, res) => {
     res.json(coins);
 });
 
-app.get('/favicon.ico', (req, res) => res.status(204));
-
 main();
