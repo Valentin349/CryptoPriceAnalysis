@@ -8,7 +8,7 @@ const pricesURL = new URL("https://api.coingecko.com/api/v3/simple/price");
 // server
 const app = express();
 app.listen(process.env.PORT || 5555, () => {
-    console.log(`Server running at ${port}`)
+    console.log(`Server running at ${process.env.PORT || 5555}`)
 });
 app.use(express.static('public'));
 
